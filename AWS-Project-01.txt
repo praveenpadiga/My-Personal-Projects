@@ -1,0 +1,167 @@
+
+
+---->>---->>---->> **Domine Mapping With Route53** <<----<<----<<----
+
+=====================================================================
+=======>Creating Our Own isolated Private Network-VPC setup<=========
+=====================================================================
+
+creating VPC :
+
+	1.click on create VPC Then give name for VPC
+	2.here we need to give CIDR Notation    *10.16.0.0/16
+						*172.16.0.0/16
+						*192.168.0.0/16
+	  here i was using 10.16.0.0/16
+	3.click on create VPC
+
+creating subnets :
+	
+	1.select your VPC
+	2.give the name for subnet 
+	3.select the availability zone  *us-east-la
+					*us-east-1b
+	4.then here we need to give CIDR nototaion as Range How maney ip's connetions we have   *10.16.1.0/24
+				 								*10.16.2.0/24
+	5.click on actions Edit subnet settings click on *auto assign IPV4
+							 *auto assign DNS record
+creating Internet Gateway :
+
+	1.Give name for internet gateway
+	2.click on create internet gateway
+	3.Ofter creation attach VPC
+
+creating Route Table :
+	
+	1.set name for route table
+	2.select VPC
+	3.click on create
+	4.click on actions edit subnet association select subnets what we created previously and edit routs attach/add internet gateway to this routetable 
+
+=====================================================================
+=======>Launching EC2 instance<=========
+=====================================================================
+
+Launch EC2 instance :
+	
+	1.AMI ubuntu 22.04
+	2.instance type t2.micro is enough
+	3.Key-pair
+	4.security-group
+		-- SSH,NFS,HTTP,HTTPS,
+	5.8-gb-EBS-vlm based on AMI
+
+	6.Host sample application crispy-kitchen
+
+=====================================================================
+=======>Create EFS<=========
+===================================================================== 
+
+creating EFS :
+	
+	1.create security group for EFS in that we will give only NFS from select which security group we attached for instances
+	2.give name for EFS select VPC
+	3.click on customize
+	4.in Network access select EFS security what we created
+
+creating Access-point :
+	
+	1.select EFS
+	2.name for Access-point
+
+=====================================================================
+	 
+	1.Host Sample application on EC2 instance "https://www.tooplate.com/zip-templates/2129_crispy_kitchen.zip"
+	2.Then take backup of that template images
+	3.Permanently Mount EFS on that images directory
+	4.then take images backup from that backup-directory
+	5.and restart the webserver and access that template
+	6.take image for that instace
+
+=====================================================================
+=======>Create AMI<=========
+===================================================================== 
+
+Create AMI :
+	
+	1.select the instance got to actions click on "Images and Template" creat image
+	2.simply give name for that image and click on create
+	3.wait until the image status is availe then terminate the instance
+
+=====================================================================
+=======>Create Launch Template<=========
+===================================================================== 
+	
+Create Launch Template :
+
+	1.click on create Launch Template
+	2.give name for that template
+	3.select this option Provide guidance to help me set up a template that I can use with EC2 Auto Scaling
+	4.select that image,instance-type,key-pair
+	5.got to resource tags give key(name) value(crispy-kitchen) and select resource(instace)
+	6.click on create Launch Template
+
+=====================================================================
+=======>Create Target Group<=========
+===================================================================== 
+
+Create Target Group :
+	
+	1.create target group without assigning any instances give traffic HTTP
+
+=====================================================================
+=======>Crate Load Balencer<=========
+===================================================================== 
+
+Crate Load Balencer :
+	
+	1.select application load balencer
+	2.give VPC
+	3.security group
+	4.add listner HTTP forward To "Target-Group"
+	5.click on create
+
+=====================================================================
+=======>Crate Autoscaling<=========
+===================================================================== 
+
+create Autoscaling :
+	
+	1.create Autoscaling give name and select "launch template" , "load balencer"
+	2.CPU Utilisation conditons
+	3.Desire,Minimum,Maximum
+	4.select VPC,SNS
+
+=====================================================================
+=======>Domine Mapping With Route53<=========
+=====================================================================
+
+Domine Mapping With Route53 :
+	
+	1.Open Route53 Create Host-Zone
+	2.transfer your domine from namecheep.com to Route53 (here I'm using namecheep.com) we have so many domaine providers like "Godady" 
+	3.create "A" record in that Host-Zone while creating that record click on alias select region and loadbalencer
+	4.It will take some time for assign that domine to our loadbalencer DNS
+	5.Then we can access it by using HTTP "http://devopstraining.com"
+	6.If we want to access by using HTTPS  "https://devopstraining.com"
+	7.send Request from ACM(Amazon Certificate Manager) to Route53
+	8.wait until the ACM request status is availe
+	9.then add the listner HTTPS in Loadbalencer
+	10.Now we can access the application with "https://devopstraining.com"
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
